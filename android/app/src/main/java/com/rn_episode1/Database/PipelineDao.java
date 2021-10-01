@@ -29,10 +29,8 @@ public interface PipelineDao {
     @Update
     void updatePipelineModel(PipelineModel pipelineModel);
 
-    @Query("DELETE FROM PIPELINETABLE " +
-            "WHERE isFired = 1 " +
-            "OR endTime < :currentTime")
-    void cleanPipelineTable(long currentTime);
+    @Query("DELETE FROM PIPELINETABLE WHERE isFired = 1 OR endTime < :currentTime")
+    void cleanPipeline(long currentTime);
 
     @Query("DELETE FROM PIPELINETABLE")
     void cleanAllPipeline();

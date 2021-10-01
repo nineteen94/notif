@@ -14,7 +14,7 @@ import NoAppSelected from './others/NoAppSelected';
 import Tabs from './Tabs';
 import LifeToolTip from './common/LifeToolTip';
 
-const UsageScreen = () => {
+const UsageScreen = ({userName, userPronoun, editInfo}) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -69,8 +69,6 @@ const UsageScreen = () => {
       appDatabase.current = await NativeModules.RoomDB.loadData();
 
       dayOfTheWeek.current = appDatabase.current.pop()[Constants.APPMODEL_DAYOFTHEWEEK] - 1;
-
-      NativeModules.NotificationModule.startPeriodicWork();
 
       const dropdownValuePlaceholder = [];
 
@@ -157,6 +155,8 @@ const UsageScreen = () => {
 
   const sumReducer = (previousValue, currentValue) => previousValue + currentValue;
 
+  //👋 👨
+
   return (
     <View style={styles.container}>
     {isLoading == true ? <ActivityIndicator style={{flex: 1, justifyContent: "center"}} size="large" color="#0000ff"/> : (
@@ -166,15 +166,18 @@ const UsageScreen = () => {
         <View style={styles.innerContainer}>
 
           <View>
-            
+
+            <TouchableWithoutFeedback onPress={closeDropDown} onLongPress={editInfo}>
+            <View style={styles.introContainer}>
+              <Text adjustsFontSizeToFit>
+                <Text style={styles.introText} >Hey {userName} 🖖<Text style={styles.introSubText}> ({userPronoun})</Text></Text>
+              </Text>
+            </View>
+            </TouchableWithoutFeedback>
+
             <Button 
-            ViewComponent={LinearGradient}
             title="SELECT APPS"
-            linearGradientProps={{
-              colors:Constants.COLOR_BUTTON,
-              start: { x: 0, y: 0.5 },
-              end: { x: 1, y: 0.5 },
-            }}
+            buttonStyle={{backgroundColor: Constants.COLOR_BUTTON}}
             titleStyle={{fontFamily:"monospace", fontWeight:'bold'}}
             onPress={toggleDropDown}
             />
@@ -207,16 +210,18 @@ const UsageScreen = () => {
 
               // textStyle={{fontFamily:"monospace"}}
 
-              badgeColors={["white"]} 
+              badgeColors={[Constants.COLOR_1]} 
 
               style={{
                 borderColor: "#c7c7c7",
-                borderTopWidth:0
+                borderTopWidth:0,
+                backgroundColor: Constants.COLOR_1
               }}
 
               dropDownContainerStyle={{
                 borderColor:"#c7c7c7",
-                borderTopWidth:0
+                borderTopWidth:0,
+                backgroundColor: Constants.COLOR_1,
               }}
 
             />
@@ -269,8 +274,30 @@ const UsageScreen = () => {
 }
 
 const styles = StyleSheet.create({
+
+  introContainer: {
+    height: SCREEN_HEIGHT*0.07,
+    backgroundColor: Constants.COLOR_1,
+    paddingBottom: 5,
+    borderColor: "grey",
+    // borderBottomWidth: 2,
+    padding: 10
+  },
+
+  introText: {
+    fontSize: 40,
+    fontFamily: "sans-serif-light",
+    fontWeight: "bold"
+  },
+
+  introSubText: {
+    fontSize: 30,
+    fontStyle: "italic",
+    fontWeight: "normal",
+  },
+
   container: {
-    paddingTop: 10,
+    paddingTop: 0,
     alignItems: "center",
     backgroundColor: Constants.COLOR_1,
     height: Constants.SCREEN_HEIGHT
@@ -278,7 +305,7 @@ const styles = StyleSheet.create({
 
   innerContainer: {
     zIndex: 3, 
-    width:"98%",
+    // width:"98%",
   },
 
   scrollView: {
@@ -288,22 +315,3 @@ const styles = StyleSheet.create({
 })
 
 export default UsageScreen;
-
-            {/* <DividerSpace width={25}/>
-            
-            <HeaderLife
-            style={{zIndex: 1}}
-            averageMinutesPast={value.map(packageName => applicationCardMaps.current.get(packageName).get(APPMODEL_AVERAGEUSAGE)).reduce(sumReducer)}
-            />
-
-            <DividerSpace width={30} />
-
-            <HeaderWeek 
-            numberOfLines={2}
-            maxHeight={SCREEN_HEIGHT*0.12}
-            totalMinutesWeek={value.map(mapTotalWeekMinutes).reduce(sumReducer)}
-            />
-
-            <DividerSpace width={15} /> */}
-
-  // const mapTotalWeekMinutes = (packageName) => applicationCardMaps.current.get(packageName).get(APPMODEL_WEEKDAYSUSAGE).reduce(sumReducer);

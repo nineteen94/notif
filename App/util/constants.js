@@ -12,7 +12,7 @@ export const APPMODEL_DAYOFTHEWEEK = "DAYOFTHEWEEK";
 export const APPMODEL_THISWEEKUSAGE = "THISWEEKUSAGE";
 
 
-export const DROPDOWN_NUMAPPS = 15;
+export const DROPDOWN_NUMAPPS = 20;
 
 export const CHART_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
 
@@ -54,28 +54,43 @@ export const RTL_STYLE = (rtl, style) => {
 
 
 
-
+// export const COLOR_4 = "#f594b7";
 // export const COLOR_1 = "#f9fafe"; //main
 
-export const COLOR_1 = "#ffffff"; //main
+export let COLOR_1 = "#ffffff"; //main
 
-export const COLOR_2 = "#92b2fd"; //b1
-export const COLOR_3 = "#ad7ffb"; //b2
-export const COLOR_4 = "#f594b7"; //hours
-export const COLOR_5 = "#ccd0f6"; //life
+export let COLOR_2 = "#92b2fd"; //semi main
+export let COLOR_3 = "#ad7ffb"; // B
+export let COLOR_5 = "#ccd0f6"; // L
 
 
-export const COLOR_BUTTON = [COLOR_2, COLOR_3];
+COLOR_1 = "#FEF9EF";
+COLOR_1 = "#fcf9f3";
+
+COLOR_3 = "#145DA0"; // app select button
+
+COLOR_2 = "#2E8BC0"; // chart and tabs
+
+COLOR_5 = "#B1D4E0"; // life tool tip
+
+
+
+
+export const COLOR_BUTTON = COLOR_3;
 export const COLOR_LIFE = COLOR_5;
-
-export const WEEK_SCORECARD_COLOR_1 = COLOR_1;
-export const WEEK_SCORECARD_COLOR_2 = COLOR_4;
-export const WEEK_SCORECARD_COLOR_3 = COLOR_5;
 
 export const COLOR_CHART_1 = COLOR_1;
 export const COLOR_CHART_2 = COLOR_1;
 
 export const COLOR_CHART_SHADOW = COLOR_2;
+
+
+
+
+
+
+
+
 
 
 
@@ -94,10 +109,14 @@ export const LIFE_AVAILABLE_HOURS_ARRAY = [
     WEEKENDS_HOURS
 ];
 
+
+
+const APPNAME = "Dexter";
+
 export const introScreenData = [
     {
         key: 1,
-        title: "Hi 👋👋 I am Crono",
+        title: "Hi 👋👋 I am " + APPNAME + "!!",
         text: "I help hoomans 👩‍🦱👨‍🦱 control their mobile📱 usage",
         // image:{uri: 'https://media4.giphy.com/media/SA613Nxg1h6zO1nRsg/giphy.gif?cid=790b76111763e6ea2811e680b3bc2bc527a644bcd4f5cf21&rid=giphy.gif&ct=g'},
         image: require('../assets/First.webp'),
@@ -107,7 +126,7 @@ export const introScreenData = [
     {
         key: 2,
         title: "This is how I roll🧻🧻",
-        text: "1️⃣ We choose the apps \n\n\n 2️⃣ Then, I monitor🖥️ the app usage \n\n\n 3️⃣ I nag you when you don't behave 😈👻",
+        text: "1️⃣ You choose the apps \n\n\n 2️⃣ I monitor🖥️ the app usage \n\n\n 3️⃣ I nag you when you don't behave 😈👻",
         // image: {uri: 'https://media1.giphy.com/media/FnsbzAybylCs8/giphy.webp?cid=ecf05e47fsqvzw517ca6k3enkqxht3230a0wihez2ly25gp2&rid=giphy.webp&ct=g'},
         image: require('../assets/Second.webp') ,
         backgroundColor: {backgroundColor: '#fbc850'}, //#febe29,
@@ -137,4 +156,4 @@ An average hooman 👩‍🦱 ${"\n"}
 ❌  Sleeps for ${LIFE_SLEEP_HOURS} hours ${"\n"}
 ❌  Eats, Shits, Other Essentials for ${LIFE_ESSENTIAL_HOURS} hours${"\n\n"}
 
-✅  This leaves us ~${LIFE_AVAILABLE_HOURS} hours per day to live Life!!`;
+✅  This leaves us ~${LIFE_AVAILABLE_HOURS} hours per day to live our life ♥`;

@@ -8,12 +8,13 @@ const LifeToolTip = () => {
   return (
     <View style={styles.continer}>
     <Tooltip
+    backgroundColor={Constants.COLOR_5}
     skipAndroidStatusBar={true}
     height={Constants.SCREEN_WIDTH * 0.7}
     width={Constants.SCREEN_WIDTH * 0.7}
     popover={<Text adjustsFontSizeToFit style={styles.tooltipText}>{Constants.LIFETOOLTIPTEXT}</Text>}
     >
-      <Text style={styles.textStyle}>Learn how❓ we calculate🧮 life spent on apps</Text>
+      <Text style={styles.textStyle}>How we calculate🧮life spent on apps❓</Text>
     </Tooltip>
     </View>
   );
@@ -24,7 +25,7 @@ export default LifeToolTip;
 
 const styles = StyleSheet.create({
   tooltipText: {
-    color: "white",
+    color: "black",
     fontSize: 15,
     alignSelf: "auto"
   },

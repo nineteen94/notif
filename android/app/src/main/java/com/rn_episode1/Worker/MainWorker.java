@@ -1,9 +1,11 @@
 package com.rn_episode1.Worker;
 
+import static com.rn_episode1.Util.Constants.BASE_WEEK;
 import static com.rn_episode1.Util.Constants.IS_ONE_TIME_WORK;
 import static com.rn_episode1.Util.Constants.MILLI_IN_DAY;
 import static com.rn_episode1.Util.Constants.NOTIFICATION_CHANNEL_ID;
 import static com.rn_episode1.Util.Constants.NOTIFICATION_CHANNEL_NAME;
+import static com.rn_episode1.Util.Constants.NOTIFICATION_MODEL_CATEGORY;
 import static com.rn_episode1.Util.Constants.NOTIFICATION_MODEL_IMAGE_PATH;
 import static com.rn_episode1.Util.Constants.NOTIFICATION_MODEL_MESSAGE;
 import static com.rn_episode1.Util.Constants.NOTIFICATION_MODEL_MESSAGE_DEFAULT_VALUE;
@@ -16,8 +18,9 @@ import static com.rn_episode1.Util.Constants.TIME_MAP_DAY_OF_WEEK;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START_OF_THE_DAY;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START_OF_THE_WEEK;
+import static com.rn_episode1.Util.Helpers.enqueueNonUIWork;
 import static com.rn_episode1.Util.Helpers.getAppIconBitMap;
-import static com.rn_episode1.Util.Helpers.getDateFromMilli;
+import static com.rn_episode1.Util.Helpers.getCurrentTimeStamp;
 import static com.rn_episode1.Util.Helpers.getString;
 import static com.rn_episode1.Util.Helpers.resetLiveNotificationTrackerFile;
 import static com.rn_episode1.Util.Helpers.setColdStartWork;
@@ -26,12 +29,14 @@ import static com.rn_episode1.Util.Helpers.transferDayUsage;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
-import android.os.UserManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -52,8 +57,7 @@ import com.rn_episode1.Models.NotificationModel;
 import com.rn_episode1.Models.PipelineModel;
 import com.rn_episode1.Models.WorkerLogModel;
 import com.rn_episode1.R;
-import com.rn_episode1.Util.ApplicationsUtil;
-import com.rn_episode1.Util.EvaluateUtil;
+import com.rn_episode1.Util.EvaluateNotificationUtil;
 import com.rn_episode1.Util.Helpers;
 import com.rn_episode1.Util.HistoricalUsageUtil;
 import com.rn_episode1.Util.WeekdaysUsageUtil;
@@ -86,7 +90,17 @@ public class MainWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+
+        isOneTimeWork = getInputData().getBoolean(IS_ONE_TIME_WORK, false);
+
+//        WorkerLogModel workerLogModel = new WorkerLogModel(getCurrentTimeStamp(), "One Time Work = " + isOneTimeWork, 0, "Started");
+//
+//        AppDatabase appDatabase = AppDatabase.getInstance(context);
+
+//        appDatabase.workerLogDao().insertWorkerLogData(workerLogModel);
+
         initialize();
+
         return Result.success();
     }
 
@@ -99,8 +113,6 @@ public class MainWorker extends Worker {
         try {
 
             AppDatabase appDatabase = AppDatabase.getInstance(context);
-
-            ApplicationsUtil.initializeApplications(context);
 
             currentTimeMap = Helpers.getTimeMap(context, false);
 
@@ -146,6 +158,9 @@ public class MainWorker extends Worker {
             dailyNotification();
 
         } catch (Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
 
@@ -186,8 +201,6 @@ public class MainWorker extends Worker {
 
             // part 2 => decide whether to run daily notification
 
-            isOneTimeWork = getInputData().getBoolean(IS_ONE_TIME_WORK, false);
-
             lastFetchTimeMap = Helpers.getTimeMap(context, true);
 
             SharedPreferences appVariableFile = context.getSharedPreferences(getString(context ,R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
@@ -213,7 +226,7 @@ public class MainWorker extends Worker {
 
             if(!isOneTimeWork && !isSunday && (isNewDay || !didDailyNotificationRun) && !isColdStart) {
 
-                EvaluateUtil.evaluateDaily(context, currentTimeMap);
+                EvaluateNotificationUtil.evaluateDaily(context, currentTimeMap);
                 
                 appVariableFileEditor.putBoolean(getString(context, R.string.DID_DAILY_NOTIFICATION_RUN), true);
 
@@ -223,6 +236,9 @@ public class MainWorker extends Worker {
             weeklyNotification();
 
         } catch(Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
 
@@ -254,9 +270,7 @@ public class MainWorker extends Worker {
             boolean didWeeklyNotificationRun = appVariableFile.getBoolean(getString(context, R.string.DID_WEEKLY_NOTIFICATION_RUN), true);
 
             if(!isOneTimeWork && (isNewWeek || !didWeeklyNotificationRun) && !isColdStart) {
-                //notification work
-                //change var to true
-                EvaluateUtil.evaluateWeekly(context, currentTimeMap);
+                EvaluateNotificationUtil.evaluateWeekly(context, currentTimeMap);
                 appVariableFileEditor.putBoolean(getString(context, R.string.DID_WEEKLY_NOTIFICATION_RUN), true);
                 appVariableFileEditor.apply();
             }
@@ -277,13 +291,15 @@ public class MainWorker extends Worker {
             boolean didFetchNotificationDataFromCloud = appVariableFile.getBoolean(getString(context, R.string.DID_FETCH_NOTIFICATION_DATA_FROM_CLOUD), true);
 
             if(!isOneTimeWork && (isNewWeek || !didFetchNotificationDataFromCloud)) {
-                //fetch data and change var to true
                 getNotificationDataFromFireStore();
             } else {
                 liveNotification();
             }
 
         } catch (Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
 
@@ -297,44 +313,65 @@ public class MainWorker extends Worker {
 
         try {
 
+            SharedPreferences appVariableFile = context.getSharedPreferences(getString(context ,R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
+
+            SharedPreferences.Editor appVariableFileEditor = appVariableFile.edit();
+
+            int weekToFetch = appVariableFile.getInt(getString(context, R.string.BASE_WEEK), BASE_WEEK);
+
             Calendar calendar = Calendar.getInstance();
 
-            int week = calendar.get(Calendar.WEEK_OF_YEAR) - 1;
+            int currentWeek = calendar.get(Calendar.WEEK_OF_YEAR);
 
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
             List<NotificationModel> notificationModelList = new ArrayList<>();
 
-            firestore.collection("notificationTM").whereEqualTo("Week",week).limit(50).get().addOnCompleteListener(task -> {
+            firestore.collection("notificationTM").whereEqualTo("Week", weekToFetch).limit(50).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
 
-                    for (QueryDocumentSnapshot document : task.getResult()) {
+                    String id = document.getId();
 
-                        String id = document.getId();
-                        String title = document.getString(NOTIFICATION_MODEL_TITLE);
-                        String message = document.getString(NOTIFICATION_MODEL_MESSAGE);
-                        String segment = document.getString(NOTIFICATION_MODEL_SEGMENT);
-                        String imagePath = document.getString(NOTIFICATION_MODEL_IMAGE_PATH);
+                    String title = document.getString(NOTIFICATION_MODEL_TITLE);
 
-                        NotificationModel notificationModel = new NotificationModel(id, title, message, imagePath, null, segment);
+                    String message = document.getString(NOTIFICATION_MODEL_MESSAGE);
 
-                        notificationModelList.add(notificationModel);
-                    }
+                    String segment = document.getString(NOTIFICATION_MODEL_SEGMENT);
+
+                    String imagePath = document.getString(NOTIFICATION_MODEL_IMAGE_PATH);
+
+                    String category = document.getString(NOTIFICATION_MODEL_CATEGORY);
+
+                    NotificationModel notificationModel = new NotificationModel(id, title, message, imagePath, null, segment, category);
+
+                    notificationModelList.add(notificationModel);
                 }
+
+                appVariableFileEditor.putBoolean(getString(context ,R.string.DID_FETCH_NOTIFICATION_DATA_FROM_CLOUD), true);
+
+                appVariableFileEditor.putInt(getString(context, R.string.BASE_WEEK), currentWeek + 1);
+
+                appVariableFileEditor.apply();
 
                 addNotificationToLocalDatabase(notificationModelList);
 
             }).addOnFailureListener(reason -> {
-               Log.d(TAG + methodName, reason.toString());
+
+                Log.d(TAG + methodName, reason.toString());
+
+                appVariableFileEditor.putBoolean(getString(context ,R.string.DID_FETCH_NOTIFICATION_DATA_FROM_CLOUD), false);
+
+                appVariableFileEditor.apply();
+
+                addNotificationToLocalDatabase(notificationModelList);
             });
-
-
         } catch (Exception e){
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
-
-
     }
 
     private void addNotificationToLocalDatabase(List<NotificationModel> notificationModelList) {
@@ -344,19 +381,11 @@ public class MainWorker extends Worker {
         Log.d(TAG, methodName + " Starts!");
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            try {
 
+            try {
                 AppDatabase appDatabase = AppDatabase.getInstance(context);
 
-                SharedPreferences appVariableFile = context.getSharedPreferences(getString(context ,R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
-
-                SharedPreferences.Editor appVariableFileEditor = appVariableFile.edit();
-
                 if(notificationModelList.size() > 0) {
-
-                    appVariableFileEditor.putBoolean(getString(context ,R.string.DID_FETCH_NOTIFICATION_DATA_FROM_CLOUD), true);
-
-//                    appDatabase.notificationDao().deleteAllNotifications();
 
                     List<NotificationModel> existingNotificationModels = appDatabase.notificationDao().selectAllNotifications();
 
@@ -369,10 +398,7 @@ public class MainWorker extends Worker {
                             appDatabase.notificationDao().deleteNotification(existingNotificationModels.get(i));
                         }
                     }
-
                 } else {
-
-                    appVariableFileEditor.putBoolean(getString(context ,R.string.DID_FETCH_NOTIFICATION_DATA_FROM_CLOUD), false);
 
                     List<NotificationModel> existingNotificationModelList = appDatabase.notificationDao().selectAllNotifications();
 
@@ -380,7 +406,7 @@ public class MainWorker extends Worker {
 
                         for(int i = 0; i < 7; i ++) {
 
-                            NotificationModel notificationModel = new NotificationModel(String.valueOf((i+1)), NOTIFICATION_MODEL_TITLE_DEFAULT_VALUE[i], NOTIFICATION_MODEL_MESSAGE_DEFAULT_VALUE[i],null, null ,NOTIFICATION_MODEL_SEGMENT_DEFAULT_VALUE[i]);
+                            NotificationModel notificationModel = new NotificationModel(String.valueOf((i+1)), NOTIFICATION_MODEL_TITLE_DEFAULT_VALUE[i], NOTIFICATION_MODEL_MESSAGE_DEFAULT_VALUE[i],null, null ,NOTIFICATION_MODEL_SEGMENT_DEFAULT_VALUE[i], "-1");
 
                             notificationModelList.add(notificationModel);
                         }
@@ -394,11 +420,12 @@ public class MainWorker extends Worker {
                     appDatabase.notificationDao().insertNotification(notificationModel);
                 }
 
-                appVariableFileEditor.apply();
-
                 liveNotification();
 
             } catch (Exception e){
+
+                enqueueNonUIWork(context);
+
                 Log.d(TAG + methodName, e.getMessage());
             }
         });
@@ -422,15 +449,17 @@ public class MainWorker extends Worker {
 
             if(!isOneTimeWork) {
 
-                EvaluateUtil.evaluateLive(context, currentTimeMap);
+                EvaluateNotificationUtil.evaluateLive(context, currentTimeMap);
             }
 
             checkPipeline();
 
         } catch (Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
-
     }
 
     private void checkPipeline() {
@@ -443,19 +472,31 @@ public class MainWorker extends Worker {
 
             AppDatabase appDatabase = AppDatabase.getInstance(context);
 
-//            appDatabase.pipelineDao().cleanPipelineTable(currentTimeMap.get(TIME_MAP_START));
-
             PipelineModel pipelineModel = appDatabase.pipelineDao().selectPipelineModel(currentTimeMap.get(TIME_MAP_START));
 
             if(pipelineModel == null) {
 
                 Log.d(TAG + methodName, "No pipeline model found");
+
+                enqueueNonUIWork(context);
+
                 return;
             }
 
             String notificationSegment = pipelineModel.getNotificationSegment();
 
-            NotificationModel notificationModel = appDatabase.notificationDao().selectNotificationModel("%" + notificationSegment + "%");
+            String category = "C-1";
+
+            String packageName = pipelineModel.getPackageName();
+
+            if(packageName != null && packageName.length() > 0) {
+
+                AppUsageModel appUsageModel = appDatabase.appUsageDao().selectAppUsageModelByPackageName(packageName);
+
+                category = appUsageModel.getAppCategory();
+            }
+
+            NotificationModel notificationModel = appDatabase.notificationDao().selectNotificationModel("%" + notificationSegment + "%", category, "C-1");
 
             String imagePath = notificationModel.getImagePath();
 
@@ -475,6 +516,9 @@ public class MainWorker extends Worker {
             }
 
         } catch (Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
 
@@ -505,7 +549,11 @@ public class MainWorker extends Worker {
 
                 executeNotification(pipelineModel, notificationModel);
             });
+
         } catch (Exception e) {
+
+            enqueueNonUIWork(context);
+
             Log.d(TAG + methodName, e.getMessage());
         }
     }
@@ -529,6 +577,9 @@ public class MainWorker extends Worker {
                 executeNotification(pipelineModel, notificationModel);
 
             } catch (Exception e) {
+
+                enqueueNonUIWork(context);
+
                 Log.d(TAG + methodName, e.getMessage());
             }
 
@@ -590,9 +641,11 @@ public class MainWorker extends Worker {
                     title = title.replace("{applicationUsage}", pipelineModel.getApplicationUsagePlaceholder());
                 }
 
-//                if(pipelineModel.getReportPlaceholder() != null) {
-//                    message = message.replace("{report}", pipelineModel.getReportPlaceholder());
-//                }
+                String userName = appVariableFile.getString(getString(context, R.string.USER_NAME), "");
+
+                message = message.replace("{userName}",userName);
+
+                title = title.replace("{userName}", userName);
 
                 byte[] bigImageByteArray = notificationModel.getImageByteArray();
 
@@ -602,26 +655,31 @@ public class MainWorker extends Worker {
                     bigImageBitmap = BitmapFactory.decodeByteArray(bigImageByteArray, 0, bigImageByteArray.length);
                 }
 
+
+                Intent notificationIntent = new Intent(context, MainActivity.class);
+
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+
                 Notification notification;
 
-                if(bigImageBitmap == null) {
-                    notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                            .setSmallIcon(R.drawable.notif_ghanta)
-                            .setContentTitle(title)
-                            .setContentText(message)
-                            .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                            .setLargeIcon(largeIcon)
-                            .build();
-                } else {
-                    notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                            .setSmallIcon(R.drawable.notif_ghanta)
-                            .setContentTitle(title)
-                            .setContentText(message)
-                            .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                            .setLargeIcon(largeIcon)
-                            .setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bigImageBitmap))
-                            .build();
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.dogfacenotificationicon)
+                        .setColor(Color.rgb(146, 178, 253))
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                        .setLargeIcon(largeIcon)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true);
+
+                if(bigImageBitmap != null) {
+                    builder = builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bigImageBitmap));
                 }
+
+                notification = builder.build();
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
@@ -631,11 +689,18 @@ public class MainWorker extends Worker {
 
                 appDatabase.pipelineDao().updatePipelineModel(pipelineModel);
 
+                appDatabase.pipelineDao().cleanPipeline(currentTimeMap.get(TIME_MAP_START));
+
                 appVariableFileEditor.putInt(getString(context, R.string.NOTIFICATION_ID), NOTIFICATION_ID);
 
                 appVariableFileEditor.apply();
 
+                enqueueNonUIWork(context);
+
             } catch (Exception e){
+
+                enqueueNonUIWork(context);
+
                 Log.d(TAG + methodName, e.getMessage());
             }
 

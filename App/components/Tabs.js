@@ -70,7 +70,7 @@ const Tabs = ({ width, dayOfTheWeek ,todayUsage, thisWeekUsage, last30DaysUsage}
     renderTabBar={props =>
     <TabBar
     {...props}
-    indicatorStyle={{ backgroundColor: "#616161" }}
+    indicatorStyle={{ backgroundColor: "black" }}
     style={{ backgroundColor: COLOR_2, padding: 0, opacity:0.9 }}
     tabStyle={{minHeight: SCREEN_HEIGHT * 0.05}}
     renderLabel={({ route, focused, color }) => (

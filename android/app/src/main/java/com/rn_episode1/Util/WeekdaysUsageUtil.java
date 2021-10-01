@@ -2,11 +2,13 @@ package com.rn_episode1.Util;
 
 import static com.rn_episode1.Util.Constants.MILLI_IN_SECOND;
 import static com.rn_episode1.Util.Helpers.getString;
+import static com.rn_episode1.Util.OptimizedAppSetup.incomingAppCheck;
 
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.rn_episode1.Database.AppDatabase;
@@ -52,9 +54,10 @@ public final class WeekdaysUsageUtil {
 
             UsageEvents usageEvents = usageStatsManager.queryEvents(startTime, endTime);
 
-            if(usageEvents == null) {
-                return;
-            }
+//            if(usageEvents == null) {
+//                return;
+//            }
+
 
             Map<String, List<UsageEvents.Event>> usageEventsMap = new HashMap<>();
 
@@ -66,20 +69,20 @@ public final class WeekdaysUsageUtil {
 
                 String packageName = currentEvent.getPackageName();
 
-                AppUsageModel appUsageModel = appDatabase.appUsageDao().selectAppUsageModelByPackageName(packageName);
+                if(incomingAppCheck(context, packageName)) {
 
-                if(appUsageModel == null) {
-                    continue;
-                }
+                    AppUsageModel appUsageModel = appDatabase.appUsageDao().selectAppUsageModelByPackageName(packageName);
 
-                int eventType = currentEvent.getEventType();
+                    int eventType = currentEvent.getEventType();
 
-                if(eventType == _RESUMED || eventType == _PAUSED) {
-                    if(usageEventsMap.get(packageName) == null) {
-                        usageEventsMap.put(packageName, new ArrayList<UsageEvents.Event>());
+                    if(eventType == _RESUMED || eventType == _PAUSED) {
+                        if(usageEventsMap.get(packageName) == null) {
+                            usageEventsMap.put(packageName, new ArrayList<UsageEvents.Event>());
+                        }
+                        usageEventsMap.get(packageName).add(currentEvent);
                     }
-                    usageEventsMap.get(packageName).add(currentEvent);
                 }
+
             }
 
             updateInDB(context, usageEventsMap, startTime, endTime);

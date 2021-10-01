@@ -5,6 +5,7 @@ import * as Constants from '../util/constants';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import UsageScreen from "./UsageScreen";
+import UserInfoSceen from "./UserInfoScreen";
 
 
 const IntroScreen = () => {
@@ -100,7 +101,7 @@ const IntroScreen = () => {
           renderItem={_renderItem}
           data={Constants.introScreenData}
           renderDoneButton={()=><></>}/> :
-        <UsageScreen/>}
+        <UserInfoSceen/>}
       </SafeAreaProvider>
     </View>
   );

@@ -1,10 +1,11 @@
 import React from "react";
 import {Card} from 'react-native-elements';
 import {StyleSheet} from 'react-native';
-import { APPMODEL_APPNAME, APPMODEL_URI, APPMODEL_WEEKDAYSUSAGE} from "../../util/constants";
+import { APPMODEL_APPNAME, APPMODEL_URI, APPMODEL_WEEKDAYSUSAGE, COLOR_1} from "../../util/constants";
 
 import ApplicationCardChart from "./ApplicationCardChart";
 import ApplicationCardHead from "./ApplicationCardHead";
+
 
 const ApplicationCard = (props) => {
 
@@ -34,7 +35,11 @@ const styles = StyleSheet.create({
     alignContent: "center",
     borderLeftWidth: 0,
     borderRightWidth: 0,
-    borderBottomWidth: 0,
-    shadowColor: "#ffffff" // background color
+    borderTopWidth: 0,
+    borderBottomWidth: 2,
+    shadowColor: COLOR_1, // background color,
+    borderColor: "#ffffff",
+    backgroundColor: COLOR_1
+
   }
 });

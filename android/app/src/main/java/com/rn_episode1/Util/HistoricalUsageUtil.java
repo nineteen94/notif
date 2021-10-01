@@ -4,6 +4,7 @@ import static com.rn_episode1.Util.Constants.HISTORICAL_DATA_DAYS;
 import static com.rn_episode1.Util.Constants.MILLI_IN_DAY;
 import static com.rn_episode1.Util.Constants.MILLI_IN_MINUTE;
 import static com.rn_episode1.Util.Helpers.getString;
+import static com.rn_episode1.Util.OptimizedAppSetup.incomingAppCheck;
 
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -31,7 +32,6 @@ public final class HistoricalUsageUtil {
 
         try {
 
-
             long startTime = endTime - MILLI_IN_DAY * Constants.HISTORICAL_DATA_DAYS;
 
             UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
@@ -46,9 +46,9 @@ public final class HistoricalUsageUtil {
 
                 String packageName = entry.getValue().getPackageName();
 
-                AppUsageModel appUsageModel = appDatabase.appUsageDao().selectAppUsageModelByPackageName(packageName);
+                if(incomingAppCheck(context, packageName)) {
 
-                if(appUsageModel != null) {
+                    AppUsageModel appUsageModel = appDatabase.appUsageDao().selectAppUsageModelByPackageName(packageName);
 
                     long usageInMilli = entry.getValue().getTotalTimeInForeground();
 
@@ -60,20 +60,14 @@ public final class HistoricalUsageUtil {
 
                     long appInstallDurationInMilli = endTime - firstInstallTime;
 
-                    int averageTimeSpentInMinutes;
+                    if(appInstallDurationInMilli >= MILLI_IN_DAY * HISTORICAL_DATA_DAYS) {
 
-                    if(appInstallDurationInMilli < MILLI_IN_DAY * HISTORICAL_DATA_DAYS) {
+                        int averageTimeSpentInMinutes = (int) Math.round( usageInMinutes / HISTORICAL_DATA_DAYS);
 
-                        averageTimeSpentInMinutes = -1;
-
-                    } else {
-
-                        averageTimeSpentInMinutes = (int) Math.round( usageInMinutes / HISTORICAL_DATA_DAYS);
+                        appUsageModel.setAverageUsage(averageTimeSpentInMinutes);
                     }
 
                     appUsageModel.setHistoricalUsage((int) usageInMinutes);
-
-                    appUsageModel.setAverageUsage(averageTimeSpentInMinutes);
 
                     appDatabase.appUsageDao().updateAppUsageModel(appUsageModel);
                 }

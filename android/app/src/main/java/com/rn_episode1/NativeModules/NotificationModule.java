@@ -82,27 +82,4 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         }
     }
 
-
-
-
-
-    @ReactMethod
-    public void startPeriodicWork () {
-        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-
-        try {
-
-            PeriodicWorkRequest periodicWorker = new PeriodicWorkRequest.Builder(
-                    MainWorker.class, 15, TimeUnit.MINUTES
-            ).build();
-
-            WorkManager workManager = WorkManager.getInstance(getReactApplicationContext());
-
-            workManager.enqueueUniquePeriodicWork("PeriodicWorker", ExistingPeriodicWorkPolicy.REPLACE, periodicWorker);
-
-        } catch (Exception e) {
-            Log.d(TAG + methodName, e.getMessage());
-        }
-    }
-
 }

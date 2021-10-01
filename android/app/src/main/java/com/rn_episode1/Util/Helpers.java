@@ -7,6 +7,7 @@ import static com.rn_episode1.Util.Constants.TIME_MAP_DAY_OF_WEEK;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START_OF_THE_DAY;
 import static com.rn_episode1.Util.Constants.TIME_MAP_START_OF_THE_WEEK;
+import static com.rn_episode1.Util.Constants.WORK_FREQUENCY;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,19 +18,43 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 import com.rn_episode1.Database.AppDatabase;
 import com.rn_episode1.Models.AppUsageModel;
+import com.rn_episode1.Models.WorkerLogModel;
 import com.rn_episode1.R;
+import com.rn_episode1.Worker.MainWorker;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Helpers {
 
     private static final String TAG = "Vishal" + Helpers.class.getSimpleName();
+
+    public static void enqueueNonUIWork (Context context) {
+
+//        AppDatabase appDatabase = AppDatabase.getInstance(context);
+//
+//        WorkerLogModel workerLogModel = new WorkerLogModel(getCurrentTimeStamp(), "Non UI Worker", 0, "Enqueuing");
+//
+//        appDatabase.workerLogDao().insertWorkerLogData(workerLogModel);
+
+        WorkManager workManager = WorkManager.getInstance(context);
+
+        OneTimeWorkRequest oneTimeWorkRequest = new OneTimeWorkRequest.Builder(MainWorker.class).setInitialDelay(WORK_FREQUENCY, TimeUnit.MINUTES).build();
+
+        workManager.enqueueUniqueWork("NonUIWork", ExistingWorkPolicy.REPLACE, oneTimeWorkRequest);
+
+    }
 
     public static int getAverageUsage (AppUsageModel appUsageModel) {
 
@@ -108,14 +133,13 @@ public class Helpers {
         return timeMap;
     }
 
-    public static String getDateFromMilli (long milli) {
-
-        DateFormat formatter = new SimpleDateFormat("dd-MMM HH:mm");
+    public static String getCurrentTimeStamp() {
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milli);
 
-        return formatter.format(calendar.getTime());
+        DateFormat formatter = new SimpleDateFormat("dd-MMM HH:mm:ss");
+
+        return  formatter.format(calendar.getTime());
     }
 
     public static String getString(Context context , int x) {

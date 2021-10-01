@@ -8,6 +8,8 @@ public class AppUsageModel {
 
     @PrimaryKey(autoGenerate = true) int id;
     String packageName;
+    String appName;
+    String appCategory;
     String uri;
     int historicalUsage;
     int averageUsage;
@@ -27,11 +29,13 @@ public class AppUsageModel {
 
 
 
-    public AppUsageModel(String packageName, String uri, int historicalUsage, int averageUsage, int sundayUsage, int mondayUsage,
+    public AppUsageModel(String packageName, String appName,String appCategory,String uri, int historicalUsage, int averageUsage, int sundayUsage, int mondayUsage,
                          int tuesdayUsage, int wednesdayUsage, int thursdayUsage, int fridayUsage, int saturdayUsage , int todayUsage, int lastWeekUsage ,
                          boolean isMonitored, boolean temp, int aggregateUsage, int aggregateDays) {
 
         this.packageName = packageName;
+        this.appName = appName;
+        this.appCategory = appCategory;
         this.uri = uri;
         this.historicalUsage = historicalUsage;
         this.averageUsage = averageUsage;
@@ -65,6 +69,22 @@ public class AppUsageModel {
 
     public String getPackageName() {
         return this.packageName;
+    }
+
+    public String getAppName() {
+        return this.appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getAppCategory() {
+        return this.appCategory;
+    }
+
+    public void setAppCategory(String appCategory) {
+        this.appCategory = appCategory;
     }
 
     public void setUri(String uri) {

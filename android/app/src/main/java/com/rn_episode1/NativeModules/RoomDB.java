@@ -11,8 +11,11 @@ import static com.rn_episode1.Util.Constants.APPMODEL_THISWEEKUSAGE;
 import static com.rn_episode1.Util.Constants.APPMODEL_URI;
 import static com.rn_episode1.Util.Constants.APPMODEL_WEEKDAYSUSAGE;
 import static com.rn_episode1.Util.Helpers.getAverageUsage;
+import static com.rn_episode1.Util.Helpers.getString;
+import static com.rn_episode1.Util.OptimizedAppSetup.outgoingAppCheck;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
@@ -29,6 +32,7 @@ import com.rn_episode1.Database.AppDatabase;
 import com.rn_episode1.Database.AppExecutors;
 import com.rn_episode1.Models.AppUsageModel;
 import com.rn_episode1.Models.PipelineModel;
+import com.rn_episode1.R;
 import com.rn_episode1.Util.Constants;
 import com.rn_episode1.Util.Helpers;
 
@@ -47,6 +51,19 @@ public class RoomDB extends ReactContextBaseJavaModule {
     }
 
     private static final String TAG = RoomDB.class.getSimpleName();
+
+    private int reformatUsage (int usage) {
+
+        usage = (int) Math.round((double) usage / 60);
+
+        if(usage >= 60) {
+            return (int) Math.round((double) usage / 10) * 10;
+        } else if(usage >= 30) {
+            return (int) Math.round((double) usage / 5) * 5;
+        } else {
+            return usage;
+        }
+    }
 
     @ReactMethod
     public void loadData(Promise promise) {
@@ -75,67 +92,67 @@ public class RoomDB extends ReactContextBaseJavaModule {
 
                     AppUsageModel appUsageModel = appUsageModelList.get(i);
 
-                    WritableMap appMap = new WritableNativeMap();
-
                     String packageName = appUsageModel.getPackageName();
 
-                    String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                    if( outgoingAppCheck(context, packageName) ) {
 
-                    WritableArray weekUsage = new WritableNativeArray();
+                        WritableMap appMap = new WritableNativeMap();
 
-                    int thisWeekUsage = 0;
+                        String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
 
-                    if(dayOfThWeek > 1) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getSundayUsage() / 60));
+                        WritableArray weekUsage = new WritableNativeArray();
+
+                        int thisWeekUsage = 0;
+
+                        if(dayOfThWeek > 1) {
+                            weekUsage.pushInt( reformatUsage(appUsageModel.getSundayUsage()));
+                        }
+                        if(dayOfThWeek > 2) {
+                            weekUsage.pushInt( reformatUsage(appUsageModel.getMondayUsage()));
+                        }
+                        if(dayOfThWeek > 3) {
+                            weekUsage.pushInt(reformatUsage( appUsageModel.getTuesdayUsage()));
+                        }
+                        if(dayOfThWeek > 4) {
+                            weekUsage.pushInt(reformatUsage( appUsageModel.getWednesdayUsage()));
+                        }
+                        if(dayOfThWeek > 5) {
+                            weekUsage.pushInt(reformatUsage( appUsageModel.getThursdayUsage()));
+                        }
+                        if(dayOfThWeek > 6) {
+                            weekUsage.pushInt(reformatUsage(appUsageModel.getFridayUsage()));
+                        }
+
+                        weekUsage.pushInt(reformatUsage( appUsageModel.getTodayUsage()));
+
+                        for(int j = 0; j < weekUsage.size(); j ++) {
+                            thisWeekUsage += weekUsage.getInt(j);
+                        }
+
+                        for(int j = weekUsage.size(); j < 7; j ++) {
+                            weekUsage.pushNull();
+                        }
+
+                        appMap.putArray(APPMODEL_WEEKDAYSUSAGE, weekUsage);
+
+                        appMap.putString(APPMODEL_PACKAGENAME, packageName);
+
+                        appMap.putString(APPMODEL_APPNAME, appName);
+
+                        appMap.putBoolean(APPMODEL_ISMONITORED, appUsageModel.getIsMonitored());
+
+                        appMap.putInt(APPMODEL_HISTORICALUSAGE, appUsageModel.getHistoricalUsage());
+
+                        appMap.putInt(APPMODEL_LASTWEEKUSAGE, (int) Math.round((double) appUsageModel.getLastWeekUsage() / 60));
+
+                        appMap.putString(APPMODEL_URI, appUsageModel.getUri());
+
+                        appMap.putInt(APPMODEL_AVERAGEUSAGE, getAverageUsage(appUsageModel));
+
+                        appMap.putInt(APPMODEL_THISWEEKUSAGE, thisWeekUsage);
+
+                        result.pushMap(appMap);
                     }
-                    if(dayOfThWeek > 2) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getMondayUsage() / 60));
-                    }
-                    if(dayOfThWeek > 3) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getTuesdayUsage() / 60));
-                    }
-                    if(dayOfThWeek > 4) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getWednesdayUsage() / 60));
-                    }
-                    if(dayOfThWeek > 5) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getThursdayUsage() / 60));
-                    }
-                    if(dayOfThWeek > 6) {
-                        weekUsage.pushInt((int) Math.round((double) appUsageModel.getFridayUsage() / 60));
-                    }
-
-                    weekUsage.pushInt((int) Math.round((double) appUsageModel.getTodayUsage() / 60));
-
-
-
-                    for(int j = 0; j < weekUsage.size(); j ++) {
-                        thisWeekUsage += weekUsage.getInt(j);
-                    }
-
-                    for(int j = weekUsage.size(); j < 7; j ++) {
-                        weekUsage.pushNull();
-                    }
-
-                    appMap.putArray(APPMODEL_WEEKDAYSUSAGE, weekUsage);
-
-                    appMap.putString(APPMODEL_PACKAGENAME, packageName);
-
-                    appMap.putString(APPMODEL_APPNAME, appName);
-
-                    appMap.putBoolean(APPMODEL_ISMONITORED, appUsageModel.getIsMonitored());
-
-                    appMap.putInt(APPMODEL_HISTORICALUSAGE, appUsageModel.getHistoricalUsage());
-
-                    appMap.putInt(APPMODEL_LASTWEEKUSAGE, (int) Math.round((double) appUsageModel.getLastWeekUsage() / 60));
-
-                    appMap.putString(APPMODEL_URI, appUsageModel.getUri());
-
-                    appMap.putInt(APPMODEL_AVERAGEUSAGE, getAverageUsage(appUsageModel));
-
-                    appMap.putInt(APPMODEL_THISWEEKUSAGE, thisWeekUsage);
-
-                    result.pushMap(appMap);
-
                 }
 
                 WritableMap appMap = new WritableNativeMap();
@@ -155,6 +172,37 @@ public class RoomDB extends ReactContextBaseJavaModule {
 
     }
 
+    @ReactMethod
+    public void isUserInfoAvailable(Promise promise) {
+        Context context = getReactApplicationContext();
+        SharedPreferences mainFile = context.getSharedPreferences(getString(context, R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
+        promise.resolve(mainFile.getBoolean(getString(context, R.string.USER_INFO_AVAILABLE), false));
+    }
+
+    @ReactMethod
+    public void setUserInfo(String name, String pronoun) {
+        Context context = getReactApplicationContext();
+        SharedPreferences mainFile = context.getSharedPreferences(getString(context, R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
+        SharedPreferences.Editor mainFileEditor = mainFile.edit();
+        mainFileEditor.putString(getString(context, R.string.USER_NAME), name);
+        mainFileEditor.putString(getString(context, R.string.USER_PRONOUN), pronoun);
+        mainFileEditor.putBoolean(getString(context, R.string.USER_INFO_AVAILABLE), true);
+        mainFileEditor.apply();
+    }
+
+    @ReactMethod
+    public void getUserName(Promise promise) {
+        Context context = getReactApplicationContext();
+        SharedPreferences mainFile = context.getSharedPreferences(getString(context, R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
+        promise.resolve(mainFile.getString(getString(context, R.string.USER_NAME), ""));
+    }
+
+    @ReactMethod
+    public void getUserPronoun(Promise promise) {
+        Context context = getReactApplicationContext();
+        SharedPreferences mainFile = context.getSharedPreferences(getString(context, R.string.APP_VARIABLE_FILE_KEY), Context.MODE_PRIVATE);
+        promise.resolve(mainFile.getString(getString(context, R.string.USER_PRONOUN), ""));
+    }
 
     @ReactMethod
     public void resetPipeline(Promise promise) {

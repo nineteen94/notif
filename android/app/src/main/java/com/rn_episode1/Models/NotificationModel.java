@@ -8,38 +8,43 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "notificationtable")
 public class NotificationModel {
 
-    @PrimaryKey @NonNull
+    @PrimaryKey(autoGenerate = true) int id;
+
     String notificationID;
-
     String title;
-
     String message;
-
     String imagePath;
 
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     byte[] imageByteArray;
 
     String segment;
+    String category;
 
-
-    public NotificationModel(String notificationID, String title, String message,String imagePath, byte[] imageByteArray ,String segment){
+    public NotificationModel(String notificationID, String title, String message,String imagePath, byte[] imageByteArray ,String segment, String category){
         this.notificationID = notificationID;
         this.title = title;
         this.message = message;
         this.imagePath = imagePath;
         this.imageByteArray = imageByteArray;
         this.segment = segment;
+        this.category = category;
     }
 
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    @NonNull
+    public int getId() {
+        return this.id;
+    }
+
     public String getNotificationID() {
         return this.notificationID;
     }
 
-    public void setNotificationID(@NonNull String notificationID) {
+    public void setNotificationID(String notificationID) {
         this.notificationID = notificationID;
     }
 
@@ -83,5 +88,11 @@ public class NotificationModel {
         this.segment = segment;
     }
 
+    public String getCategory() {
+        return this.category;
+    }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }

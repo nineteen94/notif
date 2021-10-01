@@ -27,6 +27,9 @@ public interface AppUsageDao {
     @Delete
     void deleteAppUsageModel(AppUsageModel appUsageModel);
 
+    @Query("DELETE FROM APPUSAGETABLE WHERE packageName=:packageName")
+    void deleteAppUsageModelByPackageName(String packageName);
+
     @Query("SELECT * FROM APPUSAGETABLE WHERE packageName = :packageName LIMIT 1")
     AppUsageModel selectAppUsageModelByPackageName(String packageName);
 

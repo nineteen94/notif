@@ -12,9 +12,9 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="false"
-        android:icon="@mipmap/logo1_bg_512"
+        android:icon="@mipmap/dogfacelogo_foreground"
         android:label="@string/APP_NAME"
-        android:roundIcon="@mipmap/logo1_bg_512_round"
+        android:roundIcon="@mipmap/dogfacelogo_round"
         android:theme="@style/AppTheme">
 
         <receiver android:name=".Worker.WorkManagerStartReceiver">

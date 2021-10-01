@@ -1,11 +1,14 @@
 <resources>
-    <string name="APP_NAME">Crono</string>
+    <string name="APP_NAME">Dexter</string>
 
 <!--    APPLICATION FILES -->
     <string name="APP_VARIABLE_FILE_KEY">APP_VARIABLE</string>
     <string name="LIVE_NOTIFICATION_TRACKER_FILE_KEY">LIVE_NOTIFICATION_TRACKER</string>
     <string name="DAILY_NOTIFICATION_FILE">DAILY_NOTIFICATION</string>
     <string name="WEEKLY_NOTIFICATION_FILE">WEEKLY_NOTIFICATION</string>
+    <string name="USER_NAME">USER_NAME</string>
+    <string name="USER_PRONOUN">USER_PRONOUN</string>
+    <string name="USER_INFO_AVAILABLE">USER_INFO_AVAILABLE</string>
 
 <!-- APPLICATION VARIABLE -->
     <string name="NOTIFICATION_ID">NOTIFICATION_ID</string>
@@ -15,6 +18,7 @@
     <string name="DID_DAILY_NOTIFICATION_RUN">DID_DAILY_NOTIFICATION_RUN</string>
     <string name="DID_WEEKLY_NOTIFICATION_RUN">DID_WEEKLY_NOTIFICATION_RUN</string>
     <string name="COLD_START_WORK_START_OF_DAY">COLD_START_WORK_START_OF_DAY</string>
+    <string name="BASE_WEEK">BASE_WEEK</string>
 
 
 <!-- LIVE_NOTIFICATION_TRACKER_FILE_KEY  -->

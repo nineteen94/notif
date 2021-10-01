@@ -25,16 +25,6 @@ public interface NotificationDao {
     @Delete
     void deleteNotification(NotificationModel notificationModel);
 
-    @Query("DELETE FROM NOTIFICATIONTABLE")
-    void deleteAllNotifications();
-
-    @Query("SELECT * FROM NOTIFICATIONTABLE WHERE segment=:segment ORDER BY RANDOM() LIMIT 1")
-    NotificationModel selectRandomNotificationBySegment(String segment);
-
-    @Query("SELECT * FROM NOTIFICATIONTABLE WHERE notificationID = :notificationID")
-    NotificationModel selectNotificationByID(String notificationID);
-
-
-    @Query("SELECT * FROM NOTIFICATIONTABLE WHERE segment LIKE :segment ORDER BY RANDOM() LIMIT 1")
-    NotificationModel selectNotificationModel(String segment);
+    @Query("SELECT * FROM NOTIFICATIONTABLE WHERE segment LIKE :segment AND category IN (:category, :baseCategory)  ORDER BY RANDOM() LIMIT 1")
+    NotificationModel selectNotificationModel(String segment, String category, String baseCategory);
 }
