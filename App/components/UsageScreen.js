@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {View, NativeModules, ActivityIndicator, AppState, ScrollView, TouchableWithoutFeedback, StyleSheet, Image} from 'react-native';
-import {Card, ListItem, Avatar, Text, Divider, Button} from 'react-native-elements';
+import {View, NativeModules, ActivityIndicator, AppState, ScrollView, TouchableWithoutFeedback, StyleSheet} from 'react-native';
+import {Avatar, Text, Button} from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
-import LinearGradient from 'react-native-linear-gradient';
 
 import { APPMODEL_APPNAME, APPMODEL_AVERAGEUSAGE, APPMODEL_HISTORICALUSAGE, APPMODEL_ISMONITORED, APPMODEL_PACKAGENAME, APPMODEL_URI, APPMODEL_WEEKDAYSUSAGE, DROPDOWN_NUMAPPS, SCREEN_HEIGHT } from '../util/constants';
 import * as Constants from '../util/constants';

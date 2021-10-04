@@ -3,7 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'rn_episode1' do
+target 'dexter_time' do
   config = use_native_modules!
 
   use_react_native!(
@@ -14,7 +14,7 @@ target 'rn_episode1' do
 
   pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
 
-  target 'rn_episode1Tests' do
+  target 'dexter_timeTests' do
     inherit! :complete
     # Pods for testing
   end

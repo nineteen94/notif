@@ -4,7 +4,6 @@ import AppIntroSlider from "react-native-app-intro-slider";
 import * as Constants from '../util/constants';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import UsageScreen from "./UsageScreen";
 import UserInfoSceen from "./UserInfoScreen";
 
 
@@ -83,7 +82,7 @@ const IntroScreen = () => {
     return (
       <View style={[styles.slide, item.backgroundColor]}>
         <Text style={styles.title}>{item.title}</Text>
-        <Image source={item.image} style={styles.image}/>
+        {item.image ? <Image source={item.image} style={styles.image}/> : <></>}
         {item.permissionScreen ? <></> : <Text style={styles.text}>{item.text}</Text>}
         {item.button1 ? _renderButton(item.button1, getUsageStatsPermission, usageStatsPermission) : <></>}
         {item.button2 ? _renderButton(item.button2, getIgnoreBatteryOptimizationPermission, ignoreBatteryOptimizationPermission) : <></>}

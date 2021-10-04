@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.rn_episode1">
+    package="com.dexter_time">
 
     <!--    UsageStats-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,14 +10,14 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
-        android:name=".MainApplication"
+        android:name="com.dexter_time.MainApplication"
         android:allowBackup="false"
         android:icon="@mipmap/dogfacelogo_foreground"
         android:label="@string/APP_NAME"
         android:roundIcon="@mipmap/dogfacelogo_round"
         android:theme="@style/AppTheme">
 
-        <receiver android:name=".Worker.WorkManagerStartReceiver">
+        <receiver android:name="com.dexter_time.Worker.WorkManagerStartReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
@@ -25,7 +25,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.dexter_time.MainActivity"
             android:screenOrientation="portrait"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:label="@string/APP_NAME"

@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:806464209887:android:c5d749834314e3c065fa6a",
         "android_client_info": {
-          "package_name": "com.rn_episode1"
+          "package_name": "com.dexter_time"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "806464209887-2b7u9vlfbg6038gbh07kainvlllu8t6o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.rn_episode1",
+            "package_name": "com.dexter_time",
             "certificate_hash": "3a67f2598397d5fa0e5a962c45c59d1176ecc567"
           }
         },

@@ -119,7 +119,7 @@ export const introScreenData = [
         title: "Hi 👋👋 I am " + APPNAME + "!!",
         text: "I help hoomans 👩‍🦱👨‍🦱 control their mobile📱 usage",
         // image:{uri: 'https://media4.giphy.com/media/SA613Nxg1h6zO1nRsg/giphy.gif?cid=790b76111763e6ea2811e680b3bc2bc527a644bcd4f5cf21&rid=giphy.gif&ct=g'},
-        image: require('../assets/First.webp'),
+        image: require('../assets/FirstSub.gif'),
         backgroundColor: {backgroundColor: '#59b2ab'}
     },
 
@@ -137,7 +137,7 @@ export const introScreenData = [
         title: 'I need two permissions if we are going to work out 💌',
         text: " \n \n 1. To see mobile usage \n \n 2. To run all the time",
         // image: {uri: 'https://media.giphy.com/media/kiBcwEXegBTACmVOnE/giphy.gif'},
-        image: require('../assets/Third.webp') ,
+        // image: require('../assets/Third.webp') ,
         backgroundColor: {backgroundColor: '#22bcb5'},
         button1: "See mobile usage",
         button2: "🏃‍♀️Run all the time",

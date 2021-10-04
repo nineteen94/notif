@@ -1,4 +1,3 @@
-import Toast from 'react-native-toast-message';
 
 export const getTimeStamps = (time) => {
   if(time === 0) return [0,0,0];

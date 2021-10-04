@@ -10,9 +10,9 @@ project.ext.react = [
 
 apply from: "../../node_modules/react-native/react.gradle"
 
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 def jscFlavor = 'org.webkit:android-jsc:+'
 
@@ -29,11 +29,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.rn_episode1"
+        applicationId 'com.dexter_time'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName '1.5'
+        versionCode 6
+        versionName '1.7'
     }
     splits {
         abi {
@@ -60,6 +60,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
@@ -78,6 +79,10 @@ android {
             }
 
         }
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4G"
     }
 }
 
