@@ -9,7 +9,7 @@ Preview
 
 ok
 
-![alt text](https://github.com/nineteen94/notif/tree/master/screenshots/Screenshot2.jpeg?raw=true)
+![alt text](https://github.com/nineteen94/notif/blob/master/screenshots/Screenshot2.jpeg?raw=true)
 
 ok
 
