@@ -7,10 +7,16 @@ Android app to help users monitor and control their mobile usage.
 
 Preview
 
-ok
+=> Nudges in the form of notification to get user off the phone
 
 ![alt text](https://github.com/nineteen94/notif/blob/master/screenshots/Screenshot2.jpeg?raw=true)
 
-ok
+=> Usage overview
 
-![alt text]https://github.com/nineteen94/notif/blob/master/screenshots/Screenshot2.jpeg
+![alt text](https://github.com/nineteen94/notif/blob/master/screenshots/usagescreen.jpeg?raw=true)
+
+
+=> Intro screen
+
+![alt text](https://github.com/nineteen94/notif/blob/master/screenshots/intro1.jpeg?raw=true)
+![alt text](https://github.com/nineteen94/notif/blob/master/screenshots/intro2.jpeg?raw=true)
